@@ -1,0 +1,136 @@
+<p-toast></p-toast>
+<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border">
+  <h2 class="text-2xl font-bold mb-6 text-indigo-700 border-b pb-3">Registrar Nuevo Empleado</h2>
+  
+  <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="space-y-8">
+    
+    <!-- Sección de Datos Personales -->
+    <fieldset class="border-t pt-4">
+      <legend class="text-lg font-semibold text-gray-800 px-2">Datos Personales</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-4">
+
+        <div>
+          <label for="dni" class="block text-sm font-medium text-gray-700 mb-2">DNI (8 dígitos)</label>
+          <p-inputMask id="dni" formControlName="dni" mask="99999999" styleClass="w-full" />
+        </div>
+
+        <div>
+          <label for="employeeCode" class="block text-sm font-medium text-gray-700 mb-2">Código Único (Ej: AGR005)</label>
+          <input pInputText id="employeeCode" formControlName="employeeCode" class="w-full" />
+        </div>
+        
+        <div>
+          <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">Nombres</label>
+          <input pInputText id="firstName" formControlName="firstName" class="w-full" />
+        </div>
+        
+        <div>
+          <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">Apellidos</label>
+          <input pInputText id="lastName" formControlName="lastName" class="w-full" />
+        </div>
+
+        <div class="md:col-span-2">
+            <label for="positionId" class="block text-sm font-medium text-gray-700 mb-2">Cargo Laboral</label>
+            <div class="p-inputgroup w-full">
+                <p-dropdown 
+                    id="positionId"
+                    [options]="(workPositions$ | async) ?? []" 
+                    formControlName="positionId" 
+                    optionLabel="name" 
+                    optionValue="id" 
+                    placeholder="Seleccione un cargo"
+                    [filter]="true" filterBy="name">
+                </p-dropdown>
+                <button pButton icon="pi pi-plus" type="button" (click)="showNewPositionDialog = true" styleClass="p-button-secondary" pTooltip="Crear Nuevo Cargo"></button>
+            </div>
+            @if (employeeForm.get('positionId')?.invalid && employeeForm.get('positionId')?.touched) {
+              <small class="text-red-500 mt-1 block">El cargo es obligatorio.</small>
+            }
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Sección de Contacto y Biometría -->
+    <fieldset class="border-t pt-4">
+      <legend class="text-lg font-semibold text-gray-800 px-2">Información de Contacto y Biometría</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-4">
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email (Para notificaciones)</label>
+          <input pInputText id="email" formControlName="email" type="email" class="w-full" />
+        </div>
+
+        <div>
+          <label for="phoneNumber" class="block text-sm font-medium text-gray-700 mb-2">Número Telefónico</label>
+          <input pInputText id="phoneNumber" formControlName="phoneNumber" type="tel" class="w-full" />
+        </div>
+        
+        <div class="md:col-span-2">
+          <div>
+            <label for="biometricHash" class="block text-sm font-medium text-gray-700 mb-2">Hash Biométrico (ID de Dispositivo)</label>
+            <input pInputText id="biometricHash" formControlName="biometricHash" class="w-full" />
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!-- Sección de Cuenta Web -->
+    <fieldset class="border-t pt-4">
+      <legend class="text-lg font-semibold text-gray-800 px-2">Configuración de Cuenta Web</legend>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5 mt-4">
+        <div>
+          <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Usuario Web (Login)</label>
+          <input pInputText id="username" formControlName="username" class="w-full" />
+        </div>
+        
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Contraseña (Mín. 6 caracteres)</label>
+          <p-password id="password" formControlName="password" [toggleMask]="true" [feedback]="true" styleClass="w-full" inputStyleClass="w-full"></p-password>
+        </div>
+        
+        <div class="md:col-span-2">
+          <label for="roleName" class="block text-sm font-medium text-gray-700 mb-2">Rol de Acceso</label>
+          <p-dropdown 
+              id="roleName"
+              [options]="availableRoles" 
+              formControlName="roleName" 
+              placeholder="Seleccione un rol"
+              styleClass="w-full">
+              <ng-template let-role pTemplate="item">
+                <span>{{ role.value | slice:5 }}</span>
+              </ng-template>
+              <ng-template let-role pTemplate="selectedItem">
+                <span>{{ role.value | slice:5 }}</span>
+              </ng-template>
+          </p-dropdown>
+        </div>
+      </div>
+    </fieldset>
+    
+    <p-button 
+        type="submit" 
+        [label]="isLoading ? 'Registrando...' : 'Registrar Empleado y Crear Cuenta'" 
+        [loading]="isLoading"
+        loadingIcon="pi pi-spin pi-spinner"
+        [disabled]="employeeForm.invalid || isLoading"
+        styleClass="w-full p-button-success mt-6">
+    </p-button>
+
+  </form>
+
+  <p-dialog header="Crear Nuevo Cargo" [(visible)]="showNewPositionDialog" 
+            [modal]="true" [style]="{width: '25rem'}" [draggable]="false" [resizable]="false">
+      
+      <div class="p-fluid space-y-4">
+          <div class="mt-4">
+            <label for="positionName" class="block text-sm font-medium text-gray-700 mb-2">Nombre del Cargo</label>
+            <input pInputText id="positionName" type="text" [(ngModel)]="newPositionName" name="newPositionName" class="w-full" required />
+          </div>
+      </div>
+      
+      <ng-template pTemplate="footer">
+          <p-button label="Cancelar" icon="pi pi-times" (onClick)="showNewPositionDialog = false" styleClass="p-button-text p-button-secondary"></p-button>
+          <p-button label="Crear Cargo" icon="pi pi-check" (onClick)="createWorkPosition()" [disabled]="!newPositionName.trim() || isCreatingPosition" [loading]="isCreatingPosition" styleClass="p-button-success"></p-button>
+      </ng-template>
+      
+  </p-dialog>
+</div>

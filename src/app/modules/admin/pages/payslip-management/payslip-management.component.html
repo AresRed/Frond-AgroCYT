@@ -1,0 +1,40 @@
+<div class="mt-10 bg-white p-8 rounded-xl shadow-2xl border">
+    <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3">Historial de Boletas Generadas</h2>
+    
+    <p-button icon="pi pi-refresh" label="Recargar Lista" (onClick)="loadGeneratedPayslips()" styleClass="p-button-secondary p-button-sm mb-4"></p-button>
+
+    <p-table [value]="generatedPayslips" 
+             [paginator]="true" 
+             [rows]="5" 
+             [loading]="isLoadingList"
+             styleClass="p-datatable-gridlines p-datatable-striped shadow-md">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID Boleta</th>
+          <th>Cód. Empleado</th>
+          <th>Período</th>
+          <th>Salario Neto</th>
+          <th class="w-20 text-center">Descarga</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-payslip>
+        <tr>
+          <td>{{ payslip.id }}</td>
+          <td>{{ payslip.employee?.employeeCode }}</td>
+          <td>{{ payslip.payPeriodStart | date:'mediumDate' }} - {{ payslip.payPeriodEnd | date:'mediumDate' }}</td>
+          <td class="font-bold text-green-700">{{ payslip.netSalary | currency:'PEN':'symbol':'1.2-2' }}</td>
+          <td class="text-center">
+            <p-button icon="pi pi-download" styleClass="p-button-sm p-button-success" 
+                      (onClick)="downloadPayslip(payslip.id)" pTooltip="Descargar Boleta">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="5" class="text-center py-4 text-gray-500">No se han generado boletas.</td></tr>
+      </ng-template>
+    </p-table>
+</div>

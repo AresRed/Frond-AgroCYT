@@ -1,0 +1,81 @@
+
+<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border">
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Control de Asistencia Diario</h1>
+
+        <div class="flex flex-wrap items-center space-y-3 md:space-y-0 md:space-x-4 mb-6 p-4 bg-white rounded-xl shadow-md border">
+            
+            <label for="selectedDate" class="text-sm font-medium text-gray-700">Ver fecha:</label>
+            <input type="date" id="selectedDate" [(ngModel)]="selectedDate" name="selectedDate" 
+                   class="p-2 border border-gray-300 rounded-md focus:ring-green-500"
+                   (change)="loadDailyStatus()">
+            
+            <button pButton icon="pi pi-refresh" label="Actualizar" 
+                    (onClick)="loadDailyStatus()" 
+                    [loading]="isLoading"
+                    styleClass="p-button-sm p-button-secondary transition duration-300">
+            </button>
+            
+            <p class="text-sm ml-auto text-gray-600">Empleados Cargados: {{ employeeStatuses.length }}</p>
+        </div>
+
+        <p-table [value]="employeeStatuses" 
+             [paginator]="true" 
+             [rows]="10" 
+             [loading]="isLoading"
+             styleClass="p-datatable-gridlines p-datatable-striped shadow-xl mt-6">
+            
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Código</th>
+                    <th>Trabajador</th>
+                    <th>Cargo</th>
+                    <th>Último Marcaje</th>
+                    <th>Estado Hoy</th>
+                    <th class="w-32 text-center">Acción Manual</th>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-status>
+                <tr>
+                    <td>{{ status.employeeCode }}</td>
+                    <td>{{ status.fullName }}</td>
+                    <td>{{ status.position }}</td>
+                    
+                    <td class="whitespace-nowrap text-sm text-gray-500">
+                        @if (status.lastMarkTime) {
+                            {{ status.lastMarkTime }} ({{ status.reportDate | date:'shortDate' }})
+                        } @else {
+                            --
+                        }
+                    </td>
+                    
+                    <td class="whitespace-nowrap">
+                        <p-tag [value]="status.status | titlecase" 
+                          [severity]="status.status === 'ASISTIO' ? 'success' : (status.status === 'NO_REGISTRADO' ? 'danger' : 'info')">
+                        </p-tag>
+                    </td>
+                    
+                    <td class="whitespace-nowrap text-center text-sm font-medium">
+                        <button 
+                            (click)="registerManualMark(status)" 
+                            [disabled]="status.status === 'SALIO'"
+                            [ngClass]="{
+                                'bg-yellow-500 hover:bg-yellow-600': status.status === 'NO_REGISTRADO',
+                                'bg-red-500 hover:bg-red-600': status.status === 'ASISTIO',
+                                'bg-gray-400': status.status === 'SALIO' 
+                            }"
+                            class="text-white font-bold py-2 px-3 rounded text-xs transition duration-200"
+                        >
+                            {{ getButtonText(status.status) }}
+                        </button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+                <tr><td colspan="6" class="text-center py-4 text-gray-500">No hay datos de asistencia para esta fecha.</td></tr>
+            </ng-template>
+        </p-table>
+    </div>
+</div>

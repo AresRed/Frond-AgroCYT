@@ -1,0 +1,71 @@
+
+
+
+<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border">
+  
+
+  
+
+  
+    <h2 class="text-3xl font-extrabold text-gray-800 mb-8">Gestión de Solicitudes Pendientes</h2>
+    
+    @if (isLoading) {
+      <div class="p-8 text-center text-blue-500">Cargando solicitudes...</div>
+    } 
+    
+    <p-table [value]="requests" 
+             [paginator]="true" 
+             [rows]="10" 
+             [loading]="isLoading"
+             styleClass="p-datatable-gridlines p-datatable-striped shadow-md">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>ID</th>
+          <th>Empleado</th>
+          <th>Tipo</th>
+          <th>Período Solicitado</th>
+          <th>Detalles</th>
+          <th>Estado</th>
+          <th class="w-32 text-center">Acción</th>
+        </tr>
+      </ng-template>
+  
+      <ng-template pTemplate="body" let-req>
+        <tr>
+          <td>{{ req.id }}</td>
+          <td>{{ req.employeeName }} (ID: {{ req.employeeId }})</td>
+          <td>{{ req.requestType }}</td>
+          <td>
+            {{ req.startDate | date:'shortDate' }} - {{ req.endDate | date:'shortDate' }}
+          </td>
+          <td class="max-w-xs whitespace-normal">{{ req.details }}</td>
+          
+          <td>
+            <p-tag [value]="req.status" 
+                   [severity]="req.status === 'PENDING' ? 'warn' : (req.status === 'APPROVED' ? 'success' : 'danger')">
+            </p-tag>
+          </td>
+          
+          <td class="text-center">
+            @if (req.status === 'PENDING') {
+              <div class="flex space-x-2 justify-center">
+                <p-button icon="pi pi-check" styleClass="p-button-sm p-button-success" 
+                          (onClick)="updateStatus(req.id, 'APPROVED')" pTooltip="Aprobar Solicitud"></p-button>
+                <p-button icon="pi pi-times" styleClass="p-button-sm p-button-danger" 
+                          (onClick)="updateStatus(req.id, 'REJECTED')" pTooltip="Rechazar Solicitud"></p-button>
+              </div>
+            } @else {
+              <span class="text-gray-500 text-xs">{{ req.status }}</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center py-4 text-gray-500">No hay solicitudes pendientes en este momento.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>

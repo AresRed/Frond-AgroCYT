@@ -1,0 +1,56 @@
+<div class="bg-white p-6 md:p-8 rounded-xl shadow-lg border">
+  <h2 class="text-2xl font-bold text-gray-800 mb-6">Listado y Descarga de Documentos</h2>
+
+  <div class="bg-white shadow-xl rounded-lg overflow-hidden border">
+
+    <div class="p-4 flex justify-between items-center border-b">
+      <p-button icon="pi pi-refresh" label="Actualizar" (onClick)="loadDocuments()"
+        styleClass="p-button-secondary p-button-sm"></p-button>
+      <p-floatlabel variant="on">
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" #globalFilterInput class="w-full"
+            (input)="dt.filterGlobal((globalFilterInput.value), 'contains')">
+
+        </p-iconfield>
+        <label for="Buscar">Buscar en tabla</label>
+      </p-floatlabel>
+    </div>
+
+    <p-table [value]="documents" [paginator]="true" [rows]="10" [loading]="isLoading" #dt
+      styleClass="p-datatable-gridlines p-datatable-striped">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cód. Empleado</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trabajador</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documento</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subido el</th>
+          <th class="w-20 text-center">Descargar</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-doc>
+        <tr>
+          <td>{{ doc.employeeCode }}</td>
+          <td>{{ doc.employeeName }}</td>
+          <td>
+            <p-tag [value]="doc.documentType" severity="warning"></p-tag>
+          </td>
+          <td>{{ doc.uploadDate | date:'shortDate' }}</td>
+          <td class="text-center">
+            <p-button icon="pi pi-download" styleClass="p-button-sm p-button-help" (onClick)="downloadDocument(doc.id)"
+              pTooltip="Descargar">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-4 text-gray-500">No hay documentos cargados.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
