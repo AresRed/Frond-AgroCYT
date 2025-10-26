@@ -1,5 +1,5 @@
-<div class="card shadow-xl rounded-lg bg-white p-6 lg:p-8 mt-4 space-y-8">
-    <div class="max-w-7xl mx-auto">
+<div class="p-6 md:p-10 pt-4 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto bg-white rounded-xl shadow-2xl border p-8">
         <h1 class="text-3xl font-extrabold text-gray-800 mb-6 border-b-2 border-blue-500 pb-2">Mi Horario de Turnos</h1>
         <p class="text-gray-600 mb-8">Consulta tus turnos y las tareas asignadas para la semana.</p>
 
@@ -36,7 +36,7 @@
         </p-card>
 
 
-        <p-table [value]="currentSchedule?.shifts ?? []" 
+        <p-table [value]="shiftsForTable" 
              styleClass="p-datatable-gridlines p-datatable-striped shadow-xl mt-6">
             
             <ng-template pTemplate="header">
@@ -45,17 +45,29 @@
                     <th class="w-1/6">Entrada</th>
                     <th class="w-1/6">Salida</th>
                     <th class="w-1/6">Descanso</th>
-                    <th class="w-2/6">Tarea Asignada</th>
+                    <th class="w-2/6">Tarea / Turno</th>
                 </tr>
             </ng-template>
 
             <ng-template pTemplate="body" let-shift>
-                <tr [ngClass]="{'bg-yellow-50/50': shift.dayOfWeek === 'SÁBADO' || shift.dayOfWeek === 'DOMINGO', 'font-bold': shift.dayOfWeek === 'LUNES' && shift.startTime !== '--'}">
+                <tr [ngClass]="{'bg-yellow-50/50': shift.dayOfWeek === 'SÁBADO' || shift.dayOfWeek === 'DOMINGO'}">
+                    
                     <td class="font-bold text-gray-800">{{ shift.dayOfWeek }}</td>
-                    <td [ngClass]="{'text-green-700 font-medium': shift.startTime !== '--'}">{{ shift.startTime }}</td>
-                    <td [ngClass]="{'text-red-700 font-medium': shift.endTime !== '--'}">{{ shift.endTime }}</td>
+                    
+                    <td [ngClass]="{'text-green-700 font-medium': shift.startTime !== '--', 'text-gray-400': shift.startTime === '--'}">
+                        {{ shift.startTime }}
+                    </td>
+                    <td [ngClass]="{'text-red-700 font-medium': shift.endTime !== '--', 'text-gray-400': shift.endTime === '--'}">
+                        {{ shift.endTime }}
+                    </td>
+                    
                     <td>{{ shift.breakDuration }}</td>
-                    <td>{{ shift.taskDescription }}</td>
+                    
+                    <td>
+                        <span [ngClass]="{'font-semibold': shift.startTime !== '--', 'text-gray-400': shift.startTime === '--'}">
+                            {{ shift.taskDescription }}
+                        </span>
+                    </td>
                 </tr>
             </ng-template>
 

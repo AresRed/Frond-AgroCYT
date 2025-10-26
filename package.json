@@ -20,6 +20,7 @@
     "@angular/router": "^19.2.0",
     "@primeng/themes": "^20.2.0",
     "chart.js": "^4.5.1",
+    "frond-assint": "file:",
     "primeicons": "^7.0.0",
     "primeng": "^19.1.4",
     "rxjs": "~7.8.0",
