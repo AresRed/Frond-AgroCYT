@@ -9,7 +9,7 @@ import { ScheduleManagementComponent } from './pages/schedule-management/schedul
 import { AttendanceControlComponent } from './pages/attendance-control/attendance-control.component';
 import { RequestManagementComponent } from './pages/request-management/request-management.component';
 import { DocumentListComponent } from './pages/document-list/document-list.component';
-
+import { DocumentUploadComponent } from './components/document-upload/document-upload.component';
 
 export const ADMIN_ROUTES: Routes = [
     {
@@ -21,6 +21,7 @@ export const ADMIN_ROUTES: Routes = [
         children: [
             { path: 'profile', component: ProfileComponent },
             { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: 'documentUp', component: DocumentUploadComponent },
             { path: 'dashboard', component: AdminDashboardComponent },
             { path: 'lista-empleados', component: EmployeeListComponent },
             { path: 'registrar-nuevo', component: EmployeeFormComponent },

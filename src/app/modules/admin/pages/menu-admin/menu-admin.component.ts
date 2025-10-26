@@ -54,7 +54,8 @@ export class MenuAdminComponent implements OnInit, OnDestroy {
       { label: 'Registrar Nuevo', icon: 'pi pi-user-plus', routerLink: ['registrar-nuevo'], id: 'registrar-nuevo' },
       { label: 'Asignar Horarios', icon: 'pi pi-calendar-clock', routerLink: ['asignar-horarios'], id: 'asignar-horarios' },
       { label: 'Control Diario', icon: 'pi pi-clock', routerLink: ['control-diario'], id: 'control-diario' },
-      { label: 'Solicitudes Pendientes', icon: 'pi pi-exclamation-triangle', routerLink: ['solicitudes-pendientes'], id: 'solicitudes-pendientes' },
+      { label: 'Gestion de Documentos', icon: 'pi pi-users', routerLink: ['documentUp'], id: 'documentUp' },
+      { label: 'Solicitudes Pendientes', icon: 'pi pi-exclamation-triangle', routerLink: ['solicitudxes-pendientes'], id: 'solicitudes-pendientes' },
       { label: 'Archivos y Documentos', icon: 'pi pi-folder-open', routerLink: ['archivos-documentos'], id: 'archivos-documentos' },
     ];
   }

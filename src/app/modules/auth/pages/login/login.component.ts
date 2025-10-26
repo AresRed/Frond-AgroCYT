@@ -1,8 +1,10 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+
 import { environment } from '../../../../Environment/environment';
 
 // Módulos de PrimeNG
@@ -13,6 +15,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { Subscription } from 'rxjs';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PasswordModule } from 'primeng/password';
+import { Toast } from "primeng/toast";
 
 // 1. Interfaz para el DTO de respuesta (Token JWT)
 interface AuthResponse {
@@ -24,7 +27,15 @@ interface LoginRequest { username: string; password: string; }
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FloatLabelModule, PasswordModule, ReactiveFormsModule, CardModule, ButtonModule, InputTextModule],
+  imports: [
+    CommonModule,
+    FloatLabelModule, 
+    PasswordModule,
+    ReactiveFormsModule, 
+    CardModule, 
+    ButtonModule,
+    InputTextModule,
+    Toast],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
@@ -33,9 +44,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
   private router = inject(Router);
-
+  private messageService: MessageService = inject(MessageService);
   isLoading: boolean = false;
-  
+
   loginForm!: FormGroup;
   errorMessage: string | null = null;
   loading: boolean = false; // Renombrado de isLoading a loading para coincidir con el HTML
@@ -54,7 +65,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   initForm(): void {
     this.loginForm = this.fb.group({
       // Los nombres de control deben coincidir con el HTML ajustado
-      username: ['', [Validators.required, Validators.minLength(3)]], 
+      username: ['', [Validators.required, Validators.minLength(3)]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -64,47 +75,79 @@ export class LoginComponent implements OnInit, OnDestroy {
     // 1. Validación del formulario local
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
-      this.errorMessage = 'Por favor, ingresa credenciales válidas.';
+      this.messageService.add({ 
+        severity: 'warn', 
+        summary: 'Datos Incompletos', 
+        detail: 'Por favor, ingrese un usuario y una contraseña ' 
+    });
       return;
     }
 
     this.loading = true;
     this.errorMessage = null;
-    
+
     // 2. Llamar al servicio de login con los datos del formulario
     const credentials = this.loginForm.value as { username: string; password: string; };
 
     this.authSubscription = this.authService.login(credentials).subscribe({
       next: () => {
         // 3. Éxito: Redirigir según el rol.
-        this.redirectToPanel(); 
-      },
-      error: (err) => {
-        // 4. Error: Mostrar mensaje y detener el loader
-        this.loading = false;
-        // La validación 401/403 significa credenciales incorrectas
-        this.errorMessage = 'Credenciales inválidas. Verifica tu usuario y contraseña.';
-        console.error('Error de Login:', err);
+        this.messageService.add({ 
+          severity: 'success', 
+          summary: 'Acceso Exitoso', 
+          detail: 'Redirigiendo al panel de control.' 
+      });
+      this.redirectToPanel(); 
+    },
+    error: (err) => {
+      this.isLoading = false;
+      
+      // 2. VALIDACIÓN DEL BACKEND (CREDENCIALES INCORRECTAS)
+      if (err.status === 401 || err.status === 403) {
+          this.errorMessage = 'Credenciales inválidas.';
+          // 💡 NOTIFICACIÓN: Mensaje específico de fallo de autenticación.
+          this.messageService.add({ 
+              severity: 'error', 
+              summary: 'Fallo de Autenticación', 
+              detail: 'Usuario o contraseña no coinciden.' 
+          });
+      }if(err.status === 400) {
+        this.messageService.add({ 
+          severity: 'error', 
+          summary: 'Error de Conexión', 
+          detail: 'El usuario no existe.' 
+      });
       }
+      else {
+          this.errorMessage = 'Fallo la conexión con el servidor.';
+          this.messageService.add({ 
+            severity: 'error', 
+            summary: 'Error de Conexión', 
+            detail: 'Fallo la conexión con el servidor.' 
+        });
+      }
+      
+      console.error('Error de Login:', err);
+    }
     });
   }
 
-  // Método requerido por el HTML: (click)="contrasena()"
+  
   contrasena(): void {
-     this.router.navigate(['/recover-password']); 
+    this.router.navigate(['/forgot-password']);
   }
 
-  // Lógica de redirección basada en el rol
+
   redirectToPanel(): void {
     const role = this.authService.getUserRole();
-    
+
     // Redirección basada en roles
-    if (role === 'ADMIN' || role === 'RRHH') { // Los roles de gestión van al dashboard de admin
-      this.router.navigate(['/admin']); 
+    if (role === 'ADMIN' || role === 'RRHH') { 
+      this.router.navigate(['/admin']);
     } else if (role === 'EMPLOYEE') {
-      this.router.navigate(['/employee']); // El empleado va a su dashboard de empleado
+      this.router.navigate(['/employee']); 
     } else {
-      // Si por alguna razón no hay rol, lo mejor es volver al login.
+
       this.router.navigate(['/login']);
     }
     this.loading = false;
