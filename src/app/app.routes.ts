@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './modules/auth/pages/login/login.component';
 import { HomeComponent } from './shared/components/home/home.component'; 
-import { NosotrosComponent } from './modules/pages/nosotros/nosotros.component'; 
+
 /* import { ProductosComponent } from './modules/info/pages/productos/productos.component'; */ 
 import { PostularComponent } from './modules/pages/postular/postular.component'; 
 import { ForgotPasswordComponent } from './modules/auth/pages/forgot-password/forgot-password.component';
@@ -10,7 +10,7 @@ import { CultivosComponent } from './modules/pages/cultivos/cultivos.component';
 export const routes: Routes = [
   { path: 'home', component: HomeComponent },
   {path: 'cultivos',component:CultivosComponent},
-  { path: 'nosotros', component: NosotrosComponent },
+
   /* { path: 'info', component: ProductosComponent }, */ 
   { path: 'postular', component: PostularComponent },
   { path: 'login', component: LoginComponent },
