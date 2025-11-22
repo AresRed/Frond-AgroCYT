@@ -1,5 +1,7 @@
 // src/app/core/models/employee.model.ts
 
+export interface WorkPosition { id: number; name: string; }
+
 export interface RoleInfo { id: number; name: string; }
 
 export interface EmployeeRequestDTO {
@@ -13,6 +15,20 @@ export interface EmployeeRequestDTO {
     email:string;
     phoneNumber:string;
     roleName: string;
+}
+
+export interface EmployeeResponseDTO {
+  id: number;
+  dni: string;
+  firstName: string;
+  lastName: string;
+  employeeCode: string;
+  position: { id: number; name: string };
+  email: string;
+  phoneNumber: string;
+  biometricHash: string;
+  username: string;
+  roleName: string;
 }
 
 // Interfaz para la tabla de listado (plana)

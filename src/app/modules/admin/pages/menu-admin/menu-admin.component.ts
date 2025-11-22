@@ -19,19 +19,16 @@ import { Subscription, filter } from 'rxjs';
 })
 export class MenuAdminComponent implements OnInit, OnDestroy {
 
-  seccionActiva: string = 'dashboard';
+  seccionActiva: string = 'lista-empleados';
   
   menuItems: MenuItem[] = []; 
   private routerSubscription: Subscription;
 
   constructor(private router: Router) {
-    // Escuchamos los eventos de navegación para actualizar la sección activa
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      // Extraemos el último segmento de la URL (ej: 'lista-empleados')
-      const url = event.urlAfterRedirects || event.url;
-      this.seccionActiva = url.substring(url.lastIndexOf('/') + 1);
+      this.seccionActiva = event.url.split('/').pop() || 'lista-empleados';
     });
   } 
 
@@ -54,9 +51,12 @@ export class MenuAdminComponent implements OnInit, OnDestroy {
       { label: 'Registrar Nuevo', icon: 'pi pi-user-plus', routerLink: ['registrar-nuevo'], id: 'registrar-nuevo' },
       { label: 'Asignar Horarios', icon: 'pi pi-calendar-clock', routerLink: ['asignar-horarios'], id: 'asignar-horarios' },
       { label: 'Control Diario', icon: 'pi pi-clock', routerLink: ['control-diario'], id: 'control-diario' },
-      { label: 'Gestion de Documentos', icon: 'pi pi-users', routerLink: ['documentUp'], id: 'documentUp' },
-      { label: 'Solicitudes Pendientes', icon: 'pi pi-exclamation-triangle', routerLink: ['solicitudxes-pendientes'], id: 'solicitudes-pendientes' },
-      { label: 'Archivos y Documentos', icon: 'pi pi-folder-open', routerLink: ['archivos-documentos'], id: 'archivos-documentos' },
+     /*  { label: 'Gestion de Documentos', icon: 'pi pi-users', routerLink: ['documentUp'], id: 'documentUp' }, */
+      { label: 'Solicitudes Pendientes', icon: 'pi pi-exclamation-triangle', routerLink: ['solicitudes-pendientes'], id: 'solicitudes-pendientes' },
+      { label: 'Historial de Archivos y Documentos', icon: 'pi pi-folder-open', routerLink: ['archivos-documentos'], id: 'archivos-documentos' },
+     /*  { label: 'Historia de Documentos', icon: 'pi pi-folder-open', routerLink: ['historial-documentos'], id: 'historial-documentos' }, */
+     {label: 'Generar Boletas/Documentos', icon: 'pi pi-folder-open',routerLink:['Generar-Boletas/Documentos'], id:'Generar-Boletas/Documentos'}
     ];
   }
 }
+ 

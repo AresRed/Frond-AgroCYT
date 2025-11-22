@@ -9,7 +9,7 @@ import { MyPayslipsComponent } from './pages/my-payslips/my-payslips.component';
 import { MyCertificatesComponent } from './components/my-certificates/my-certificates.component'; 
 import { MenuEmployeeComponent } from './pages/menu-employee/menu-employee.component';
 export const EMPLOYEE_ROUTES: Routes = [
-    {
+    { 
         path: '', 
         canActivate: [authGuard], 
         component: MenuEmployeeComponent, 
@@ -17,7 +17,7 @@ export const EMPLOYEE_ROUTES: Routes = [
         children: [
            
             { path: 'profile', component: ProfileComponent },
-            { path: '', redirectTo: 'my-schedule', pathMatch: 'full' },
+            { path: '', component: EmployeeDashboardComponent },
             { path: 'my-schedule', component: MyScheduleComponent },
             { path: 'my-attendance-history', component: MyAttendanceHistoryComponent },
             { path: 'my-requests', component: MyRequestsComponent },
@@ -25,4 +25,4 @@ export const EMPLOYEE_ROUTES: Routes = [
             { path: 'my-certificates', component: MyCertificatesComponent },
         ]
     }
-]; 
+];

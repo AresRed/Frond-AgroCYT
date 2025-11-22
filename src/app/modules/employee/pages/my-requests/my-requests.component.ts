@@ -2,21 +2,22 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../Environment/environment'; 
+import { environment } from '../../../../Environment/environment';
+import { EmployeeService } from '../../../../core/services/employee.service';
 
 // Módulos de PrimeNG
-import { TableModule } from 'primeng/table'; 
-import { ButtonModule } from 'primeng/button'; 
-import { TagModule } from 'primeng/tag'; 
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
 
 // Interfaces necesarias
-interface RequestCreationDTO { 
-    requestTypeId: number; details: string; startDate: string; endDate: string; 
-    managerId: number; 
+interface RequestCreationDTO {
+    requestTypeId: number; details: string; startDate: string; endDate: string;
+    managerId: number;
 }
-interface RequestResponseDTO { 
+interface RequestResponseDTO {
     id: number; requestType: string; employeeName: string; details: string;
-    startDate: string; endDate: string; status: 'PENDING' | 'APPROVED' | 'REJECTED'; 
+    startDate: string; endDate: string; status: 'PENDING' | 'APPROVED' | 'REJECTED';
     createdAt: string;
 }
 interface ManagerContactDTO {
@@ -32,30 +33,30 @@ interface ManagerContactDTO {
 export class MyRequestsComponent implements OnInit{
 
   private http = inject(HttpClient);
-  private apiUrl = environment.apiUrl + '/api/requests'; 
-  private managerUrl = environment.apiUrl + '/api/employee/managers'; 
+  private employeeService = inject(EmployeeService);
+  private apiUrl = environment.apiUrl + '/api/requests';
 
-  requests: RequestResponseDTO[] = []; 
-  managersList: ManagerContactDTO[] = []; 
+  requests: RequestResponseDTO[] = [];
+  managersList: ManagerContactDTO[] = [];
 
   isLoadingHistory = false;
   isSendingRequest = false;
-  
+
   newRequest: RequestCreationDTO = {
-    requestTypeId: 1, 
+    requestTypeId: 1,
     startDate: new Date().toISOString().split('T')[0],
     endDate: new Date().toISOString().split('T')[0],
     details: '',
-    managerId: 0 
+    managerId: 0
   };
 
   requestTypes = [
-    { value: 1, label: 'Permiso Personal' }, 
+    { value: 1, label: 'Permiso Personal' },
     { value: 2, label: 'Solicitud de Vacaciones' },
     { value: 3, label: 'Adelanto de Sueldo' },
     { value: 4, label: 'Constancia de Trabajo' }
   ];
-  
+
   ngOnInit(): void {
     this.loadRequestsHistory();
     this.loadManagers();
@@ -66,11 +67,7 @@ export class MyRequestsComponent implements OnInit{
   // -----------------------------------------------------------
 
   loadManagers(): void {
-    // Roles que pueden gestionar solicitudes (ADMIN y RRHH)
-    const rolesToLoad = ['ADMIN', 'RRHH']; 
-    const url = `${this.managerUrl}?roles=${rolesToLoad.join(',')}`;
-    
-    this.http.get<ManagerContactDTO[]>(url).subscribe({
+    this.employeeService.getManagers().subscribe({
         next: (data) => { this.managersList = data; },
         error: (err) => console.error('Fallo al cargar la lista de managers:', err)
     });

@@ -5,65 +5,55 @@ import { Router } from '@angular/router';
 import { environment } from '../../../../Environment/environment';
 import { of, catchError, map } from 'rxjs';
 
-import { IconFieldModule } from 'primeng/iconfield';
-import { InputIconModule } from 'primeng/inputicon';
-// Módulos de PrimeNG (Importar aquí)
+import { MessageService, ConfirmationService } from 'primeng/api';  // Necesario para notificaciones Toast y diálogos
+// Módulos de PrimeNG
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { Skeleton } from "primeng/skeleton";
-import { FloatLabel } from "primeng/floatlabel";
+import { SkeletonModule } from 'primeng/skeleton';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 
 interface EmployeeListDTO {
-  id: number; employeeCode: string; fullName: string; position: string;
-  userId: number; username: string; roleName: string;
+  id: number;
+  employeeCode: string;
+  fullName: string;
+  position: string;
+  userId: number;
+  username: string;
+  roleName: string;
+  enabled: boolean; // <-- Añadir el estado de la cuenta
 }
+
 interface EmployeeVM extends EmployeeListDTO {
   roleDisplay: string;
 }
+
 @Component({
   selector: 'app-employee-list',
   standalone: true,
   imports: [
-    CommonModule,
-    IconFieldModule,
-    InputIconModule,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    InputTextModule,
-    Skeleton,
-    MultiSelectModule,
-    FloatLabel
-],
+    CommonModule, TableModule, ButtonModule, TagModule, InputTextModule, SkeletonModule, IconFieldModule, InputIconModule, FloatLabelModule, ConfirmDialogModule, ToastModule, TooltipModule
+  ],
+  providers: [MessageService, ConfirmationService], // <-- Añadir ConfirmationService
   templateUrl: './employee-list.component.html',
-  styleUrl: './employee-list.component.scss'
+  styleUrls: ['./employee-list.component.scss']
 })
-
-
 export class EmployeeListComponent implements OnInit {
 
   private http = inject(HttpClient);
   public router = inject(Router);
   private apiUrl = environment.apiUrl + '/api/employee';
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService); // <-- Inyectar ConfirmationService
   employees: EmployeeVM[] = [];
-  allEmployees: EmployeeVM[] = []; // Guarda la lista original sin filtrar
   isLoading = true;
   errorMessage: string | null = null;
-  newPositionName: string = '';
-  showNewPositionModal: boolean = false;
-
-  // Estado de los filtros
-  searchTerm: string = '';
-  selectedRoles: string[] = [];
-
-  roles = [
-    { name: 'Administrador', value: 'ROLE_ADMIN' },
-    { name: 'Recursos Humanos', value: 'ROLE_RRHH' },
-    { name: 'Empleado', value: 'ROLE_USER' } // O el rol que corresponda
-  ];
 
   ngOnInit(): void {
     this.loadEmployees();
@@ -73,65 +63,52 @@ export class EmployeeListComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.http.get<EmployeeListDTO[]>(this.apiUrl)
-      .pipe(
-        // 🚨 SOLUCIÓN AL ERROR: Usamos llaves y 'return' explícitos
-        map((employeesDTO: EmployeeListDTO[]) => {
-          // Mapeamos el array interno, creando el campo roleDisplay
-          return employeesDTO.map(emp => ({
-            ...emp,
-            // Crea el campo 'roleDisplay' eliminando el prefijo 'ROLE_'
-            roleDisplay: emp.roleName ? emp.roleName.slice(5) : 'N/A'
-          })) as EmployeeVM[]; // Forzamos el casteo al tipo de array final (EmployeeVM[])
-        }), // <-- El map de RxJS termina aquí
-
-        catchError(error => {
-          this.isLoading = false;
-          if (error.status === 403 || error.status === 401) {
-            this.router.navigate(['/login']);
-          }
-          this.errorMessage = 'Error al cargar empleados: Acceso denegado.';
-          return of([]);
-        })
-      )
-      .subscribe(data => {
-        this.allEmployees = data; // Guarda la lista completa
-        this.employees = data;    // Inicializa la lista a mostrar
+    this.http.get<EmployeeListDTO[]>(this.apiUrl).pipe(
+      map((employeesDTO: EmployeeListDTO[]) => {
+        return employeesDTO.map(emp => ({
+          ...emp,
+          roleDisplay: emp.roleName ? emp.roleName.replace('ROLE_', '') : 'N/A'
+        })) as EmployeeVM[];
+      }),
+      catchError(error => {
         this.isLoading = false;
-      });
+        this.errorMessage = 'Error al cargar empleados. Por favor, intente de nuevo más tarde.';
+        console.error(error);
+        return of([]);
+      })
+    ).subscribe(data => {
+      this.employees = data;
+      this.isLoading = false;
+    });
   }
 
-  onSearch(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.searchTerm = input.value.toLowerCase();
-    this.applyFilters();
+  // Método para la búsqueda global en la tabla
+  onGlobalFilter(table: any, event: Event): void {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  onFilterByRole(event: any): void {
-    // event.value es un array de los objetos de rol seleccionados
-    this.selectedRoles = event.value.map((role: { name: string, value: string }) => role.value);
-    this.applyFilters();
-  }
+  toggleUserStatus(employee: EmployeeVM): void {
+    const isEnabled = employee.enabled;
+    const action = isEnabled ? 'Desactivar' : 'Activar';
+    const actionPast = isEnabled ? 'desactivada' : 'activada';
 
-  private applyFilters(): void {
-    let filteredEmployees = [...this.allEmployees];
-
-    // 1. Filtrar por término de búsqueda
-    if (this.searchTerm) {
-      filteredEmployees = filteredEmployees.filter(emp =>
-        emp.fullName.toLowerCase().includes(this.searchTerm) ||
-        emp.position.toLowerCase().includes(this.searchTerm) ||
-        emp.username.toLowerCase().includes(this.searchTerm)
-      );
-    }
-
-    // 2. Filtrar por roles seleccionados
-    if (this.selectedRoles.length > 0) {
-      filteredEmployees = filteredEmployees.filter(emp =>
-        this.selectedRoles.includes(emp.roleName)
-      );
-    }
-
-    this.employees = filteredEmployees;
+    this.confirmationService.confirm({
+      message: `¿Estás seguro de que quieres ${action.toLowerCase()} la cuenta de ${employee.fullName}?`,
+      header: `Confirmar ${action}`,
+      icon: isEnabled ? 'pi pi-exclamation-triangle' : 'pi pi-check-circle',
+      acceptLabel: action,
+      rejectLabel: 'Cancelar',
+      accept: () => {
+        this.http.put(`${this.apiUrl}/status/${employee.userId}?enable=${!isEnabled}`, {}).subscribe({
+          next: () => {
+            this.messageService.add({ severity: 'success', summary: 'Éxito', detail: `La cuenta ha sido ${actionPast}.` });
+            this.loadEmployees(); // Recargar la tabla
+          },
+          error: (err) => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: `No se pudo cambiar el estado: ${err.error?.message || 'Error desconocido'}` });
+          }
+        });
+      }
+    });
   }
 }

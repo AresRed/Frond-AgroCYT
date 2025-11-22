@@ -10,6 +10,8 @@ import { AttendanceControlComponent } from './pages/attendance-control/attendanc
 import { RequestManagementComponent } from './pages/request-management/request-management.component';
 import { DocumentListComponent } from './pages/document-list/document-list.component';
 import { DocumentUploadComponent } from './components/document-upload/document-upload.component';
+import { DocumentDownloaderComponent } from './components/document-downloader/document-downloader.component';
+import { PayslipManagementComponent } from './pages/payslip-management/payslip-management.component';
 
 export const ADMIN_ROUTES: Routes = [
     {
@@ -20,13 +22,16 @@ export const ADMIN_ROUTES: Routes = [
         data: { roles: ['ADMIN', 'RRHH'] }, // Solo para roles de gestión
         children: [
             { path: 'profile', component: ProfileComponent },
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+            { path: '', redirectTo: 'lista-empleados', pathMatch: 'full' },
             { path: 'documentUp', component: DocumentUploadComponent },
             { path: 'dashboard', component: AdminDashboardComponent },
             { path: 'lista-empleados', component: EmployeeListComponent },
             { path: 'registrar-nuevo', component: EmployeeFormComponent },
+            { path: 'employee/edit/:id', component: EmployeeFormComponent },
             { path: 'asignar-horarios', component: ScheduleManagementComponent },
             { path: 'control-diario', component: AttendanceControlComponent },
+            {path: 'Generar-Boletas/Documentos', component: PayslipManagementComponent},
+            /* { path: 'historial-documentos', component: DocumentDownloaderComponent }, */
             { path: 'solicitudes-pendientes', component: RequestManagementComponent },
             { path: 'archivos-documentos', component: DocumentListComponent },
         ]

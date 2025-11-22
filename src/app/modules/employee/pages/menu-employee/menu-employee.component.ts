@@ -17,7 +17,7 @@ import { Subscription, filter } from 'rxjs';
 })
 export class MenuEmployeeComponent implements OnInit, OnDestroy {
 
-  seccionActiva: string = 'my-schedule';
+  seccionActiva: string = 'employee';
   menuItems: MenuItem[] = [];
   private routerSubscription: Subscription;
 
@@ -26,7 +26,7 @@ export class MenuEmployeeComponent implements OnInit, OnDestroy {
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
-      this.seccionActiva = event.url.split('/').pop() || 'my-schedule';
+      this.seccionActiva = event.url.split('/').pop() || 'employee';
     });
   }
 
@@ -41,12 +41,13 @@ export class MenuEmployeeComponent implements OnInit, OnDestroy {
   }
   initializeMenuItems(): void {
     this.menuItems = [
-      { label: 'Horarios', icon: 'pi pi-users', routerLink: ['my-schedule'], id: 'my-schedule' },
-      { label: 'Certificados', icon: 'pi pi-user-plus', routerLink: ['my-certificates'], id: 'my-certificates' },
+      { label: 'Dashboard', icon: 'pi pi-th-large', routerLink: [''], id: 'employee' },
+      { label: 'Mi Perfil', icon: 'pi pi-user', routerLink: ['profile'], id: 'profile' },
+      { label: 'Horarios', icon: 'pi pi-calendar', routerLink: ['my-schedule'], id: 'my-schedule' },
+      { label: 'Certificados', icon: 'pi pi-file-word', routerLink: ['my-certificates'], id: 'my-certificates' },
       { label: 'Asistencias', icon: 'pi pi-calendar-clock', routerLink: ['my-attendance-history'], id: 'my-attendance-history' },
-      { label: 'Solicitudes', icon: 'pi pi-clock', routerLink: ['my-requests'], id: 'my-requests' },
-      { label: 'Boletas', icon: 'pi pi-exclamation-triangle', routerLink: ['my-payslips'], id: 'my-payslips' },
-      { label: 'Archivos y Documentos', icon: 'pi pi-folder-open', },
+      { label: 'Solicitudes', icon: 'pi pi-envelope', routerLink: ['my-requests'], id: 'my-requests' },
+      { label: 'Boletas de Pago', icon: 'pi pi-dollar', routerLink: ['my-payslips'], id: 'my-payslips' },
     ];
   }
 

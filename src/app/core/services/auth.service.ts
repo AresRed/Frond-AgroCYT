@@ -76,6 +76,11 @@ export class AuthService {
     const id = localStorage.getItem(this.USER_ID_KEY);
     return id ? parseInt(id, 10) : null;
   }
+
+  getEmployeeId(): number | null {
+    const id = localStorage.getItem(this.USER_ID_KEY);
+    return id ? parseInt(id, 10) : null;
+  }
   isLoggedIn(): boolean { return this._isLoggedIn.value; }
   isManager(): boolean {
     const role = this._userRole.value;

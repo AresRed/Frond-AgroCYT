@@ -1,64 +1,39 @@
-<div class="card shadow-xl rounded-lg bg-white p-6 lg:p-8 mt-4 space-y-8">
-    <div class="max-w-7xl mx-auto">
-        <h1 class="text-3xl font-extrabold text-gray-800 mb-6 border-b-2 border-green-500 pb-2">Mis Certificados</h1>
-        <p class="text-gray-600 mb-8">Aquí puedes acceder a todos tus documentos oficiales de empleo, formación y diplomas.</p>
+<div class="container mx-auto p-4">
+  <h2 class="text-2xl font-bold mb-4">Mis Certificados</h2>
 
-        <p-table [value]="certificates" 
-             [paginator]="true" 
-             [rows]="10" 
-             [loading]="isLoading"
-             styleClass="p-datatable-gridlines p-datatable-striped shadow-xl mt-6">
-            
-            <ng-template pTemplate="header">
-                <tr>
-                    <th class="w-1/12">ID</th>
-                    <th>Título del Documento</th>
-                    <th class="w-1/6">Tipo</th>
-                    <th class="w-1/6">Fecha de Emisión</th>
-                    <th class="w-1/6">Fecha de Caducidad</th>
-                    <th class="w-20 text-center">Descargar</th>
-                </tr>
-            </ng-template>
+  <div *ngIf="loading">
+    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
+    <p-skeleton height="2rem" width="10rem" styleClass="mb-2"></p-skeleton>
+  </div>
 
-            <ng-template pTemplate="body" let-cert>
-                <tr>
-                    <td class="font-bold">{{ cert.id }}</td>
-                    <td class="font-medium text-gray-800">{{ cert.title }}</td>
-                    
-                    <td>
-                        <p-tag [value]="cert.type | titlecase" 
-                          [severity]="getSeverity(cert.type)">
-                        </p-tag>
-                    </td>
-                    
-                    <td class="text-sm text-gray-600">{{ cert.issueDate }}</td>
-                    
-                    <td class="text-sm">
-                        <ng-container *ngIf="cert.expiryDate; else noExpiry">
-                            <span [ngClass]="{'text-red-500 font-medium': isExpired(cert.expiryDate)}">
-                                {{ cert.expiryDate }}
-                                <i *ngIf="isExpired(cert.expiryDate)" class="pi pi-exclamation-triangle text-red-500 ml-1" title="Certificado expirado"></i>
-                            </span>
-                        </ng-container>
-                        <ng-template #noExpiry>
-                            <span class="text-gray-400">Permanente</span>
-                        </ng-template>
-                    </td>
-                    
-                    <td class="text-center">
-                        <p-button icon="pi pi-download" 
-                                  (onClick)="downloadCertificate(cert)" 
-                                  styleClass="p-button-sm p-button-text p-button-success" 
-                                  title="Descargar PDF">
-                        </p-button>
-                    </td>
-                </tr>
-            </ng-template>
+  <div *ngIf="error" class="text-red-500 bg-red-100 border border-red-400 rounded p-4">
+    {{ error }}
+  </div>
 
-            <ng-template pTemplate="emptymessage">
-                <tr><td colspan="6" class="text-center py-4 text-gray-500">No tienes certificados disponibles en este momento.</td></tr>
-            </ng-template>
-        </p-table>
-        
-    </div>
+  <div *ngIf="!loading && !error && certificates.length > 0">
+    <p-table [value]="certificates" styleClass="p-datatable-striped">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Nombre del Archivo</th>
+          <th>Tipo de Documento</th>
+          <th>Fecha de Carga</th>
+          <th>Acciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-cert>
+        <tr>
+          <td>{{ cert.fileName }}</td>
+          <td><p-tag [value]="cert.documentType"></p-tag></td>
+          <td>{{ cert.uploadDate | date:'dd/MM/yyyy' }}</td>
+          <td>
+            <button pButton type="button" icon="pi pi-download" (click)="downloadCertificate(cert)" class="p-button-rounded p-button-info"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div *ngIf="!loading && !error && certificates.length === 0" class="text-center text-gray-500 mt-4">
+    <p>No tienes certificados disponibles.</p>
+  </div>
 </div>
